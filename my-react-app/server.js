@@ -10,11 +10,9 @@ const __dirname = path.dirname(__filename);
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-// Configure CORS for all origins in development
+// Update CORS configuration to allow all origins in production
 app.use(cors({
-  origin: process.env.NODE_ENV === 'production' 
-    ? 'https://your-render-domain.onrender.com' 
-    : 'http://localhost:5000',
+  origin: '*',
   credentials: true
 }));
 
