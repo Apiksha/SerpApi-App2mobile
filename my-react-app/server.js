@@ -1,17 +1,9 @@
 import express from 'express';
 import cors from 'cors';
 import fetch from 'node-fetch';
-import path from 'path';
-import { fileURLToPath } from 'url';
 
 const app = express();
-const PORT = process.env.PORT || 5000;
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-
-// Serve static files from Vite's build output
-app.use(express.static(path.join(__dirname, 'dist')));
+const PORT = 5000;
 
 app.use(cors());
 
@@ -29,11 +21,6 @@ app.get('/search', async (req, res) => {
     console.error('Error fetching SerpAPI:', err);
     res.status(500).json({ error: 'Failed to fetch results from SerpAPI' });
   }
-});
-
-// Fallback: Serve index.html for all other routes (for React routing)
-app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, 'dist', 'index.html'));
 });
 
 app.listen(PORT, () => {
