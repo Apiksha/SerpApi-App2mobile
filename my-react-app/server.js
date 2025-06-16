@@ -10,7 +10,20 @@ const __dirname = path.dirname(__filename);
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-app.use(cors());
+// Configure CORS for all origins in development
+app.use(cors({
+  origin: process.env.NODE_ENV === 'production' 
+    ? 'https://your-render-domain.onrender.com' 
+    : 'http://localhost:5000',
+  credentials: true
+}));
+
+app.use(express.json());
+
+// Health check endpoint
+app.get('/health', (req, res) => {
+  res.json({ status: 'ok' });
+});
 
 // Define the /search route first before static files
 app.get('/search', async (req, res) => {
@@ -19,25 +32,34 @@ app.get('/search', async (req, res) => {
     return res.status(400).json({ error: 'Query parameter is required' });
   }
 
-  const apiKey = 'b639b0f8af5028f0761f98f096b7620f85e712bb1211675610b9e98e992946a1';
+  const apiKey = process.env.SERPAPI_KEY || 'b639b0f8af5028f0761f98f096b7620f85e712bb1211675610b9e98e992946a1';
   const apiUrl = `https://serpapi.com/search?engine=google_maps&q=${encodeURIComponent(query)}&api_key=${apiKey}`;
 
   try {
+    console.log('Environment:', process.env.NODE_ENV);
     console.log('Fetching from SerpAPI:', apiUrl);
-    const response = await fetch(apiUrl);
+    
+    const response = await fetch(apiUrl, {
+      headers: {
+        'Accept': 'application/json'
+      }
+    });
     
     if (!response.ok) {
-      throw new Error(`SerpAPI returned ${response.status}: ${response.statusText}`);
+      const errorText = await response.text();
+      console.error('SerpAPI Error Response:', errorText);
+      throw new Error(`SerpAPI returned ${response.status}: ${errorText}`);
     }
 
     const data = await response.json();
-    console.log('SerpAPI response received');
-    res.json(data);
+    console.log('SerpAPI response received successfully');
+    return res.json(data);
   } catch (err) {
-    console.error('Error fetching SerpAPI:', err.message);
-    res.status(500).json({ 
+    console.error('Detailed error:', err);
+    return res.status(500).json({ 
       error: 'Failed to fetch results from SerpAPI',
-      details: err.message 
+      details: err.message,
+      environment: process.env.NODE_ENV
     });
   }
 });
