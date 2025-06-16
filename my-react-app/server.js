@@ -12,6 +12,10 @@ const PORT = process.env.PORT || 5000;
 
 app.use(cors());
 
+// Serve static files from the dist directory
+app.use(express.static(path.join(__dirname, 'dist')));
+
+// Serve index.html for all routes to support client-side routing
 app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, 'dist', 'index.html'));
 });
@@ -33,5 +37,5 @@ app.get('/search', async (req, res) => {
 });
 
 app.listen(PORT, () => {
-  console.log(`Proxy server running at http://localhost:${PORT}`);
+  console.log(`Server running at http://localhost:${PORT}`);
 });
