@@ -12,14 +12,7 @@ const PORT = process.env.PORT || 5000;
 
 app.use(cors());
 
-// Serve static files from the dist directory
-app.use(express.static(path.join(__dirname, 'dist')));
-
-// Serve index.html for all routes to support client-side routing
-app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, 'dist', 'index.html'));
-});
-
+// Define the /search route first before static files
 app.get('/search', async (req, res) => {
   const query = req.query.q;
   const apiKey = 'b639b0f8af5028f0761f98f096b7620f85e712bb1211675610b9e98e992946a1';
@@ -34,6 +27,14 @@ app.get('/search', async (req, res) => {
     console.error('Error fetching SerpAPI:', err);
     res.status(500).json({ error: 'Failed to fetch results from SerpAPI' });
   }
+});
+
+// Serve static files from the dist directory
+app.use(express.static(path.join(__dirname, 'dist')));
+
+// Handle other routes by serving index.html
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, 'dist', 'index.html'));
 });
 
 app.listen(PORT, () => {
