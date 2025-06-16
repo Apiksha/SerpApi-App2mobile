@@ -15,17 +15,30 @@ app.use(cors());
 // Define the /search route first before static files
 app.get('/search', async (req, res) => {
   const query = req.query.q;
+  if (!query) {
+    return res.status(400).json({ error: 'Query parameter is required' });
+  }
+
   const apiKey = 'b639b0f8af5028f0761f98f096b7620f85e712bb1211675610b9e98e992946a1';
+  const apiUrl = `https://serpapi.com/search?engine=google_maps&q=${encodeURIComponent(query)}&api_key=${apiKey}`;
 
   try {
-    const response = await fetch(
-      `https://serpapi.com/search?engine=google_maps&q=${encodeURIComponent(query)}&api_key=${apiKey}`
-    );
+    console.log('Fetching from SerpAPI:', apiUrl);
+    const response = await fetch(apiUrl);
+    
+    if (!response.ok) {
+      throw new Error(`SerpAPI returned ${response.status}: ${response.statusText}`);
+    }
+
     const data = await response.json();
+    console.log('SerpAPI response received');
     res.json(data);
   } catch (err) {
-    console.error('Error fetching SerpAPI:', err);
-    res.status(500).json({ error: 'Failed to fetch results from SerpAPI' });
+    console.error('Error fetching SerpAPI:', err.message);
+    res.status(500).json({ 
+      error: 'Failed to fetch results from SerpAPI',
+      details: err.message 
+    });
   }
 });
 
