@@ -12,10 +12,10 @@ const PORT = process.env.PORT || 5000;
 const isProduction = process.env.NODE_ENV === 'production';
 const environment = process.env.NODE_ENV || 'development'; 
 
+// Update CORS configuration to be more permissive in production
 app.use(cors({
-  origin: isProduction 
-    ? 'https://serpapi-app2mobile.onrender.com'
-    : 'http://localhost:5000',
+  origin: '*',  // Allow all origins in production
+  methods: ['GET', 'POST'],
   credentials: true
 }));
 
@@ -35,12 +35,15 @@ app.get('/search', async (req, res) => {
   const apiUrl = `https://serpapi.com/search?engine=google_maps&q=${encodeURIComponent(query)}&api_key=${apiKey}`;
 
   try {
-    console.log('Environment:', process.env.NODE_ENV);
+    console.log('Environment:', environment);
+    console.log('Production mode:', isProduction);
     console.log('Fetching from SerpAPI:', apiUrl);
     
     const response = await fetch(apiUrl, {
+      method: 'GET',
       headers: {
-        'Accept': 'application/json'
+        'Accept': 'application/json',
+        'Content-Type': 'application/json'
       }
     });
     
@@ -58,17 +61,24 @@ app.get('/search', async (req, res) => {
     return res.status(500).json({ 
       error: 'Failed to fetch results from SerpAPI',
       details: err.message,
-      environment: process.env.NODE_ENV
+      environment: environment,
+      isProduction: isProduction
     });
   }
 });
 
+// Serve static files
 app.use(express.static(path.join(__dirname, 'dist')));
 
+// Handle all other routes
 app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, 'dist', 'index.html'));
 });
 
+// Update listen to include error handling
 app.listen(PORT, '0.0.0.0', () => {
   console.log(`Server running in ${environment} mode on port ${PORT}`);
+  console.log(`Production mode: ${isProduction}`);
+}).on('error', (err) => {
+  console.error('Server error:', err);
 });
