@@ -9,16 +9,27 @@ export default defineConfig(({ command, mode }) => {
     build: {
       outDir: 'dist',
       assetsDir: 'assets',
-      sourcemap: true
+      sourcemap: true,
+      minify: 'terser',
+      rollupOptions: {
+        output: {
+          manualChunks: {
+            vendor: ['react', 'react-dom']
+          }
+        }
+      }
     },
     server: {
-      port: 5000,
+      port: 3000,
       proxy: {
         '/search': {
           target: 'http://localhost:5000',
-          changeOrigin: true
+          changeOrigin: true,
+          secure: false,
+          rewrite: (path) => path.replace(/^\/search/, '/search')
         }
-      }
+      },
+      cors: true
     },
     define: {
       'process.env.VITE_API_URL': JSON.stringify(
@@ -26,6 +37,10 @@ export default defineConfig(({ command, mode }) => {
           ? 'https://serpapi-app2mobile.onrender.com'
           : 'http://localhost:5000'
       )
+    },
+    optimizeDeps: {
+      include: ['react', 'react-dom'],
+      exclude: ['path']
     }
   }
 })

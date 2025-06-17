@@ -129,6 +129,25 @@ form button[type="reset"]:hover {
   color: #111827;
 }
 
+.loading {
+  color: #666;
+}
+
+.error {
+  color: #ff0000;
+  padding: 10px;
+  border-radius: 4px;
+  background-color: #ffe6e6;
+}
+
+.result-content {
+  max-height: 500px;
+  overflow-y: auto;
+  background-color: #f5f5f5;
+  padding: 15px;
+  border-radius: 4px;
+}
+
 
 .footer {
   display: flex;
