@@ -16,18 +16,21 @@ export default function Layout() {
     setError(null);
 
     try {
+      const apiUrl = import.meta.env.VITE_API_URL;
       const response = await fetch(
-        `http://localhost:5000/search?q=${encodeURIComponent(keyword)}`
+        `${apiUrl}/search?q=${encodeURIComponent(keyword)}`
       );
 
       if (!response.ok) {
-        throw new Error('Server error');
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Server error');
       }
 
       const data = await response.json();
       setResult(data);
     } catch (err) {
-      setError('❌ Failed to fetch results');
+      console.error('Search error:', err);
+      setError(`❌ Failed to fetch results: ${err.message}`);
     } finally {
       setLoading(false);
     }

@@ -12,9 +12,8 @@ const PORT = process.env.PORT || 5000;
 const isProduction = process.env.NODE_ENV === 'production';
 const environment = process.env.NODE_ENV || 'development'; 
 
-// Update CORS configuration to be more permissive in production
 app.use(cors({
-  origin: '*',  // Allow all origins in production
+  origin: '*', 
   methods: ['GET', 'POST'],
   credentials: true
 }));
@@ -67,15 +66,12 @@ app.get('/search', async (req, res) => {
   }
 });
 
-// Serve static files
 app.use(express.static(path.join(__dirname, 'dist')));
 
-// Handle all other routes
 app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, 'dist', 'index.html'));
 });
 
-// Update listen to include error handling
 app.listen(PORT, '0.0.0.0', () => {
   console.log(`Server running in ${environment} mode on port ${PORT}`);
   console.log(`Production mode: ${isProduction}`);
