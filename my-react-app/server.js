@@ -9,21 +9,22 @@ const __dirname = path.dirname(__filename);
 
 const app = express();
 const PORT = process.env.PORT || 5000;
+const isProduction = process.env.NODE_ENV === 'production';
+const environment = process.env.NODE_ENV || 'development'; 
 
-// Update CORS configuration to allow all origins in production
 app.use(cors({
-  origin: '*',
+  origin: isProduction 
+    ? 'https://serpapi-app2mobile.onrender.com'
+    : 'http://localhost:5000',
   credentials: true
 }));
 
 app.use(express.json());
 
-// Health check endpoint
 app.get('/health', (req, res) => {
   res.json({ status: 'ok' });
 });
 
-// Define the /search route first before static files
 app.get('/search', async (req, res) => {
   const query = req.query.q;
   if (!query) {
@@ -62,14 +63,12 @@ app.get('/search', async (req, res) => {
   }
 });
 
-// Serve static files from the dist directory
 app.use(express.static(path.join(__dirname, 'dist')));
 
-// Handle other routes by serving index.html
 app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, 'dist', 'index.html'));
 });
 
-app.listen(PORT, () => {
-  console.log(`Server running at http://localhost:${PORT}`);
+app.listen(PORT, '0.0.0.0', () => {
+  console.log(`Server running in ${environment} mode on port ${PORT}`);
 });
