@@ -1,0 +1,13 @@
+services:
+  - type: web
+    name: serpapi-app2mobile
+    env: node
+    buildCommand: cd my-react-app && npm install && npm run build
+    startCommand: cd my-react-app && npm run render-start
+    envVars:
+      - key: NODE_VERSION
+        value: 18.x
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 10000
