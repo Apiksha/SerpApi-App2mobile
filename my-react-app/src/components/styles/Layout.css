@@ -129,6 +129,17 @@ form button[type="reset"]:hover {
   color: #111827;
 }
 
+.download-button{
+  padding: 10px 20px;
+  background-color: #4f46e5;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 0.95rem;
+  transition: background-color 0.2s ease;
+}
+
 .loading {
   color: #666;
 }

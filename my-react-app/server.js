@@ -10,35 +10,38 @@ const __dirname = path.dirname(__filename);
 const app = express();
 const PORT = process.env.PORT || 5000;
 const isProduction = process.env.NODE_ENV === 'production';
-const environment = process.env.NODE_ENV || 'development'; 
+const environment = process.env.NODE_ENV || 'development';
 
-// Update CORS configuration to be more permissive in production
+// CORS setup
 app.use(cors({
-  origin: '*', 
+  origin: '*',
   methods: ['GET', 'POST'],
   credentials: true
 }));
 
 app.use(express.json());
 
+// Health check route
 app.get('/health', (req, res) => {
   res.json({ status: 'ok' });
 });
 
+// Search route with keyword (q) and coordinates (ll)
 app.get('/search', async (req, res) => {
   try {
-    const { q } = req.query;
-    if (!q) {
-      return res.status(400).json({ error: 'Query parameter is required' });
+    const { q, ll } = req.query;
+
+    if (!q || !ll) {
+      return res.status(400).json({ error: 'Both q (keyword) and ll (coordinates) are required' });
     }
 
     const apiKey = process.env.SERPAPI_KEY || 'b639b0f8af5028f0761f98f096b7620f85e712bb1211675610b9e98e992946a1';
-    const apiUrl = `https://serpapi.com/search?engine=google_maps&q=${encodeURIComponent(q)}&api_key=${apiKey}`;
+    const apiUrl = `https://serpapi.com/search?engine=google_maps&q=${encodeURIComponent(q)}&ll=${encodeURIComponent(ll)}&api_key=${apiKey}`;
 
     console.log('Environment:', environment);
     console.log('Production mode:', isProduction);
     console.log('Fetching from SerpAPI:', apiUrl);
-    
+
     const response = await fetch(apiUrl, {
       method: 'GET',
       headers: {
@@ -46,7 +49,7 @@ app.get('/search', async (req, res) => {
         'Content-Type': 'application/json'
       }
     });
-    
+
     if (!response.ok) {
       const errorText = await response.text();
       console.error('SerpAPI Error Response:', errorText);
@@ -58,7 +61,7 @@ app.get('/search', async (req, res) => {
     return res.json(data);
   } catch (err) {
     console.error('Detailed error:', err);
-    return res.status(500).json({ 
+    return res.status(500).json({
       error: 'Failed to fetch results from SerpAPI',
       details: err.message,
       environment: environment,
@@ -67,12 +70,15 @@ app.get('/search', async (req, res) => {
   }
 });
 
+// Serve frontend from "dist" folder in production
 app.use(express.static(path.join(__dirname, 'dist')));
 
+// Fallback to index.html for SPA routes
 app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, 'dist', 'index.html'));
 });
 
+// Start server
 app.listen(PORT, '0.0.0.0', () => {
   console.log(`Server running in ${environment} mode on port ${PORT}`);
   console.log(`Production mode: ${isProduction}`);
