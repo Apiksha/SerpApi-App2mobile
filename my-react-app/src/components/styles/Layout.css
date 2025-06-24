@@ -41,7 +41,7 @@ form {
   flex: 1;
   width: 100%;
   max-width: 480px;
-  min-height: 320px;
+  min-height: 400px;
 }
 
 form label {
@@ -114,8 +114,7 @@ form button[type="reset"]:hover {
   overflow-y: auto;
   width: 100%;
   max-width: 600px;
-  min-height: 320px;
-  max-height: 320px;
+  min-height: 400px;
   box-shadow: 0 6px 20px rgba(0, 0, 0, 0.06);
 }
 
@@ -159,6 +158,37 @@ form button[type="reset"]:hover {
   border-radius: 4px;
 }
 
+/* ...existing code... */
+
+.pagination-controls {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 16px;
+}
+
+.pagination-controls button {
+  background-color: #2563eb;
+  color: #fff;
+  border: none;
+  padding: 7px 18px;
+  border-radius: 4px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.pagination-controls button:disabled {
+  background-color: #a5b4fc;
+  color: #e5e7eb;
+  cursor: not-allowed;
+}
+
+.pagination-controls span {
+  font-weight: 500;
+  font-size: 1rem;
+  color: #374151;
+}
 
 .footer {
   display: flex;

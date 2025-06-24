@@ -29,14 +29,17 @@ app.get('/health', (req, res) => {
 // Search route with keyword (q) and coordinates (ll)
 app.get('/search', async (req, res) => {
   try {
-    const { q, ll } = req.query;
+    const { q, ll, page = 1 } = req.query;
 
     if (!q || !ll) {
       return res.status(400).json({ error: 'Both q (keyword) and ll (coordinates) are required' });
     }
 
+    // Calculate start index for pagination (20 results per page)
+    const start = (parseInt(page, 10) - 1) * 20;
+
     const apiKey = process.env.SERPAPI_KEY || 'b639b0f8af5028f0761f98f096b7620f85e712bb1211675610b9e98e992946a1';
-    const apiUrl = `https://serpapi.com/search?engine=google_maps&q=${encodeURIComponent(q)}&ll=${encodeURIComponent(ll)}&api_key=${apiKey}`;
+    const apiUrl = `https://serpapi.com/search?engine=google_maps&q=${encodeURIComponent(q)}&ll=${encodeURIComponent(ll)}&start=${start}&api_key=${apiKey}`;
 
     console.log('Environment:', environment);
     console.log('Production mode:', isProduction);
