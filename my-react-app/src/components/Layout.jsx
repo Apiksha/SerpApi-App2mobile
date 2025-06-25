@@ -11,6 +11,43 @@ export default function Layout() {
   const [error, setError] = useState(null);
   const [page, setPage] = useState(1);
 
+  // State for total pages and results per page
+  const [totalPages, setTotalPages] = useState(null);
+  const [resultsPerPage, setResultsPerPage] = useState(0);
+  const [totalPagesLoading, setTotalPagesLoading] = useState(false);
+
+  // Helper to update totalPages by fetching all pages (without updating results)
+  const updateTotalPages = async () => {
+    setTotalPagesLoading(true);
+    let pageNum = 1;
+    let hasMore = true;
+    let totalPagesFetched = 0;
+
+    while (hasMore) {
+      const response = await fetch(
+        `/search?q=${encodeURIComponent(keyword)}&ll=${encodeURIComponent(coordinates)}&page=${pageNum}`,
+        {
+          headers: {
+            Accept: 'application/json',
+            'Content-Type': 'application/json',
+          },
+        }
+      );
+      if (!response.ok) break;
+      const data = await response.json();
+
+      if (Array.isArray(data.local_results) && data.local_results.length > 0) {
+        hasMore = data.local_results.length === 20;
+        pageNum += 1;
+        totalPagesFetched += 1;
+      } else {
+        hasMore = false;
+      }
+    }
+    setTotalPages(totalPagesFetched);
+    setTotalPagesLoading(false);
+  };
+
   const handleSearch = async (e, pageNum = 1) => {
     if (e) e.preventDefault();
     setLoading(true);
@@ -36,6 +73,19 @@ export default function Layout() {
       const data = await response.json();
       setResult(data);
       setPage(pageNum);
+
+      // Set results per page for current search
+      setResultsPerPage(Array.isArray(data.local_results) ? data.local_results.length : 0);
+
+      // Calculate total pages from total_results if available
+      const totalResults = data.search_information?.total_results || 0;
+      const pages = totalResults > 0 ? Math.ceil(totalResults / 20) : 1;
+      setTotalPages(pages);
+
+      // If only 1 page is detected but there might be more, update totalPages in background
+      if (pages === 1 && Array.isArray(data.local_results) && data.local_results.length === 20) {
+        updateTotalPages();
+      }
     } catch (err) {
       console.error('Search error:', err);
       setError(`❌ Failed to fetch results: ${err.message}`);
@@ -50,6 +100,9 @@ export default function Layout() {
     setResult(null);
     setError(null);
     setPage(1);
+    setTotalPages(0);
+    setResultsPerPage(0);
+    setTotalPagesLoading(false);
   };
 
   // Fetch all pages of results
@@ -57,6 +110,8 @@ export default function Layout() {
     let allResults = [];
     let pageNum = 1;
     let hasMore = true;
+    let lastPageResults = 0;
+    let totalPagesFetched = 0;
 
     while (hasMore) {
       const response = await fetch(
@@ -73,12 +128,16 @@ export default function Layout() {
 
       if (Array.isArray(data.local_results) && data.local_results.length > 0) {
         allResults = allResults.concat(data.local_results);
+        lastPageResults = data.local_results.length;
         hasMore = data.local_results.length === 20;
         pageNum += 1;
+        totalPagesFetched += 1;
       } else {
         hasMore = false;
       }
     }
+    setResultsPerPage(lastPageResults);
+    setTotalPages(totalPagesFetched);
     return allResults;
   };
 
@@ -191,6 +250,18 @@ export default function Layout() {
                 </button>
               </div>
             </div>
+
+            {totalPagesLoading ? (
+              <div style={{ marginBottom: '17px', fontWeight: 500 }}>
+                Total Pages: <span className="loading">🔄...</span> | Results per Page: {resultsPerPage}
+              </div>
+            ) : (
+              (totalPages !== null && (totalPages > 0 || resultsPerPage > 0)) && (
+                <div style={{ marginBottom: '10px', fontWeight: 500 }}>
+                  Total Pages: {totalPages} | Results per Page: {resultsPerPage}
+                </div>
+              )
+            )}
 
             {loading && <p className="loading">🔄 Loading...</p>}
             {error && <p className="error">{error}</p>}

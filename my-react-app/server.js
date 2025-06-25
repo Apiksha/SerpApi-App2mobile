@@ -38,7 +38,7 @@ app.get('/search', async (req, res) => {
     // Calculate start index for pagination (20 results per page)
     const start = (parseInt(page, 10) - 1) * 20;
 
-    const apiKey = process.env.SERPAPI_KEY || 'b639b0f8af5028f0761f98f096b7620f85e712bb1211675610b9e98e992946a1';
+    const apiKey = process.env.SERPAPI_KEY || 'a4bc7fb8b0c92ac15b2889758802c389821d7bc1ea1c80334e82eebdedfcb4da';
     const apiUrl = `https://serpapi.com/search?engine=google_maps&q=${encodeURIComponent(q)}&ll=${encodeURIComponent(ll)}&start=${start}&api_key=${apiKey}`;
 
     console.log('Environment:', environment);
