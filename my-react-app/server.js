@@ -12,7 +12,7 @@ const PORT = process.env.PORT || 5000;
 const isProduction = process.env.NODE_ENV === 'production';
 const environment = process.env.NODE_ENV || 'development';
 
-// CORS setup
+
 app.use(cors({
   origin: '*',
   methods: ['GET', 'POST'],
@@ -21,12 +21,12 @@ app.use(cors({
 
 app.use(express.json());
 
-// Health check route
+
 app.get('/health', (req, res) => {
   res.json({ status: 'ok' });
 });
 
-// Search route with keyword (q) and coordinates (ll)
+
 app.get('/search', async (req, res) => {
   try {
     const { q, ll, page = 1 } = req.query;
@@ -35,7 +35,6 @@ app.get('/search', async (req, res) => {
       return res.status(400).json({ error: 'Both q (keyword) and ll (coordinates) are required' });
     }
 
-    // Calculate start index for pagination (20 results per page)
     const start = (parseInt(page, 10) - 1) * 20;
 
     const apiKey = process.env.SERPAPI_KEY || 'a4bc7fb8b0c92ac15b2889758802c389821d7bc1ea1c80334e82eebdedfcb4da';
@@ -73,15 +72,13 @@ app.get('/search', async (req, res) => {
   }
 });
 
-// Serve frontend from "dist" folder in production
+//dist folder is used to serve files to frontend
 app.use(express.static(path.join(__dirname, 'dist')));
 
-// Fallback to index.html for SPA routes
 app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, 'dist', 'index.html'));
 });
 
-// Start server
 app.listen(PORT, '0.0.0.0', () => {
   console.log(`Server running in ${environment} mode on port ${PORT}`);
   console.log(`Production mode: ${isProduction}`);

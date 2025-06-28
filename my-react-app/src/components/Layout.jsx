@@ -10,13 +10,12 @@ export default function Layout() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [page, setPage] = useState(1);
-
-  // State for total pages and results per page
   const [totalPages, setTotalPages] = useState(null);
   const [resultsPerPage, setResultsPerPage] = useState(0);
   const [totalPagesLoading, setTotalPagesLoading] = useState(false);
 
-  // Helper to update totalPages by fetching all pages (without updating results)
+  //find total pages received from SerpAPI
+
   const updateTotalPages = async () => {
     setTotalPagesLoading(true);
     let pageNum = 1;
@@ -48,6 +47,8 @@ export default function Layout() {
     setTotalPagesLoading(false);
   };
 
+  //Search Button Logic
+
   const handleSearch = async (e, pageNum = 1) => {
     if (e) e.preventDefault();
     setLoading(true);
@@ -74,15 +75,12 @@ export default function Layout() {
       setResult(data);
       setPage(pageNum);
 
-      // Set results per page for current search
       setResultsPerPage(Array.isArray(data.local_results) ? data.local_results.length : 0);
 
-      // Calculate total pages from total_results if available
       const totalResults = data.search_information?.total_results || 0;
       const pages = totalResults > 0 ? Math.ceil(totalResults / 20) : 1;
       setTotalPages(pages);
 
-      // If only 1 page is detected but there might be more, update totalPages in background
       if (pages === 1 && Array.isArray(data.local_results) && data.local_results.length === 20) {
         updateTotalPages();
       }
@@ -105,7 +103,6 @@ export default function Layout() {
     setTotalPagesLoading(false);
   };
 
-  // Fetch all pages of results
   const fetchAllResults = async () => {
     let allResults = [];
     let pageNum = 1;
@@ -141,7 +138,8 @@ export default function Layout() {
     return allResults;
   };
 
-  // Download all results as CSV
+  // Download csv Logic
+  
   const downloadAllCSV = async () => {
     setLoading(true);
     try {
@@ -151,29 +149,96 @@ export default function Layout() {
         return;
       }
 
+      // Updated headers as per your requirements
       const headers = [
         'title',
-        'rating',
-        'reviews',
+        'latitude and longitude',
+        'ratings',
+        'review',
         'type',
+        'types',
         'type_id',
         'address',
-        'phone number',
+        'operating hours',
+        'phone',
         'website',
-        'order_online'
+        'service options',
+        'popular_for',
+        'highlights',
+        'offerings',
+        'dining options',
+        'amenities',
+        'atmosphere',
+        'crowd',
+        'payments',
+        'parking',
+        'pets',
+        'reserve a table',
+        'order online'
       ];
 
-      const rows = allResults.map(item => ({
-        title: item.title || '',
-        rating: item.rating || '',
-        reviews: item.reviews || '',
-        type: item.type || '',
-        type_id: item.type_id || '',
-        address: item.address || '',
-        'phone number': item.phone || '',
-        website: item.website || '',
-        order_online: item.order_online || ''
-      }));
+      const rows = allResults.map(item => {
+        // Helper to extract array/object field from extensions
+        const getFromExtensions = (field) => {
+          if (!Array.isArray(item.extensions)) return '';
+          for (const ext of item.extensions) {
+            if (ext[field]) {
+              if (Array.isArray(ext[field])) return ext[field].join('; ');
+              if (typeof ext[field] === 'object') return Object.entries(ext[field]).map(([k, v]) => `${k}: ${v}`).join('; ');
+              return ext[field];
+            }
+          }
+          return '';
+        };
+
+        // Service options: prefer array from extensions, else object from top-level
+        let serviceOptions = getFromExtensions('service_options');
+        if (!serviceOptions && typeof item.service_options === 'object' && item.service_options !== null) {
+          serviceOptions = Object.entries(item.service_options).map(([k, v]) => `${k}: ${v}`).join('; ');
+        }
+
+        // Reserve a table: combine reserve_a_table, planning from extensions, and any other info
+        let reserveTable = item.reserve_a_table || '';
+        const planning = getFromExtensions('planning');
+        if (planning) {
+          reserveTable = reserveTable
+            ? `${reserveTable}; ${planning}`
+            : planning;
+        }
+
+        return {
+          title: item.title || '',
+          'latitude and longitude': item.gps_coordinates
+            ? `${item.gps_coordinates.latitude || ''},${item.gps_coordinates.longitude || ''}`
+            : '',
+          ratings: item.rating || '',
+          review: item.reviews || '',
+          type: item.type || '',
+          types: Array.isArray(item.types) ? item.types.join('; ') : (item.types || ''),
+          type_id: item.type_id || '',
+          address: item.address || '',
+          'operating hours': item.hours
+            ? (typeof item.hours === 'string'
+                ? item.hours
+                : (item.hours.displayed_hours || []).join('; '))
+            : '',
+          phone: item.phone || '',
+          website: item.website || '',
+          'service options': serviceOptions,
+          popular_for: getFromExtensions('popular_for') || (Array.isArray(item.popular_for) ? item.popular_for.join('; ') : (item.popular_for || '')),
+          highlights: getFromExtensions('highlights') || (Array.isArray(item.highlights) ? item.highlights.join('; ') : (item.highlights || '')),
+          offerings: getFromExtensions('offerings') || (Array.isArray(item.offerings) ? item.offerings.join('; ') : (item.offerings || '')),
+          'dining options': getFromExtensions('dining_options') || (Array.isArray(item.dining_options) ? item.dining_options.join('; ') : (item.dining_options || '')),
+          amenities: getFromExtensions('amenities') || (Array.isArray(item.amenities) ? item.amenities.join('; ') : (item.amenities || '')),
+          atmosphere: getFromExtensions('atmosphere') || (Array.isArray(item.atmosphere) ? item.atmosphere.join('; ') : (item.atmosphere || '')),
+          crowd: getFromExtensions('crowd') || (Array.isArray(item.crowd) ? item.crowd.join('; ') : (item.crowd || '')),
+          payments: getFromExtensions('payments') || (Array.isArray(item.payments) ? item.payments.join('; ') : (item.payments || '')),
+          parking: getFromExtensions('parking') || (Array.isArray(item.parking) ? item.parking.join('; ') : (item.parking || '')),
+          pets: getFromExtensions('pets') || (Array.isArray(item.pets) ? item.pets.join('; ') : (item.pets || '')),
+          'reserve a table': reserveTable,
+          'order online': item.order_online || ''
+        };
+      });
 
       const csvContent = [
         headers.join(','),
