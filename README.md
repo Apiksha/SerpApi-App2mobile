@@ -1,8 +1,8 @@
 # SerpApi-App2mobile
 
-This is a full-stack MERN project built for App2 Mobile that uses SerpAPI to fetch local business search results. Users can search via keyword and coordinates, view paginated data, download it as CSV, and store it in MongoDB.
+This is a full-stack MERN project built for App2Mobile that uses SerpAPI to fetch local business search results. Users can search via keyword and coordinates, view paginated data, download it as CSV, and store it in MongoDB.
 
-##Features
+#Features
 🔎 Search local businesses using SerpAPI
 📍 Supports location-based queries
 📄 Auto-pagination with total page calculation
