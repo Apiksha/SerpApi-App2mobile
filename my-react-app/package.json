@@ -8,7 +8,7 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
-    "start": "concurrently \"node server.js\" \"cd mongodb-api-storage/src && node app.js\"",
+    "start": "concurrently \"node server.js\" \"cd sqlDatabase/src && node app.js\"",
     "render-start": "vite preview --host --port ${PORT:-3000}"
   },
   "dependencies": {
