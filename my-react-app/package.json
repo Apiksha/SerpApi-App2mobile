@@ -8,7 +8,7 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
-    "start": "concurrently \"node server.js\" \"cd sqlDatabase/src && node app.js\"",
+    "start": "node server.js",
     "render-start": "vite preview --host --port ${PORT:-3000}"
   },
   "dependencies": {

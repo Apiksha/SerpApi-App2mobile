@@ -1,9 +1,17 @@
 import express from 'express';
+import dotenv from 'dotenv';
 import cors from 'cors';
 import fetch from 'node-fetch';
 import path from 'path';
 import { fileURLToPath } from 'url';
 
+// DB imports
+import resultsRoutes from './sqlDatabase/src/routes/results.js';
+import sequelize from './sqlDatabase/src/db/connection.js';
+import './sqlDatabase/src/models/Result.js';
+
+// Setup
+dotenv.config();
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
@@ -12,25 +20,23 @@ const PORT = process.env.PORT || 5000;
 const isProduction = process.env.NODE_ENV === 'production';
 const environment = process.env.NODE_ENV || 'development';
 
-
+// Middlewares
 app.use(cors({
   origin: '*',
   methods: ['GET', 'POST'],
   credentials: true
 }));
+app.use(express.json({ limit: '50mb' }));
 
-app.use(express.json());
-
-
+// Health check
 app.get('/health', (req, res) => {
   res.json({ status: 'ok' });
 });
 
-
+// SerpAPI route
 app.get('/search', async (req, res) => {
   try {
     const { q, ll, page = 1 } = req.query;
-
     if (!q || !ll) {
       return res.status(400).json({ error: 'Both q (keyword) and ll (coordinates) are required' });
     }
@@ -45,7 +51,6 @@ app.get('/search', async (req, res) => {
     console.log('Fetching from SerpAPI:', apiUrl);
 
     const response = await fetch(apiUrl, {
-      method: 'GET',
       headers: {
         'Accept': 'application/json',
         'Content-Type': 'application/json'
@@ -59,8 +64,8 @@ app.get('/search', async (req, res) => {
     }
 
     const data = await response.json();
-    console.log('SerpAPI response received successfully');
     return res.json(data);
+
   } catch (err) {
     console.error('Detailed error:', err);
     return res.status(500).json({
@@ -72,16 +77,30 @@ app.get('/search', async (req, res) => {
   }
 });
 
-//dist folder is used to serve files to frontend
+// Mount DB API
+app.use('/api/results', resultsRoutes);
+
+// Serve frontend
 app.use(express.static(path.join(__dirname, 'dist')));
 
 app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, 'dist', 'index.html'));
 });
 
-app.listen(PORT, '0.0.0.0', () => {
-  console.log(`Server running in ${environment} mode on port ${PORT}`);
-  console.log(`Production mode: ${isProduction}`);
-}).on('error', (err) => {
-  console.error('Server error:', err);
-});
+// Connect DB and start server
+sequelize.authenticate()
+  .then(() => {
+    console.log('✅ Connected to MySQL database');
+    return sequelize.sync();
+  })
+  .then(() => {
+    console.log('✅ Sequelize models synced');
+
+    app.listen(PORT, '0.0.0.0', () => {
+      console.log(`🚀 Server running in ${environment} mode on port ${PORT}`);
+      console.log(`Production mode: ${isProduction}`);
+    });
+  })
+  .catch(err => {
+    console.error('❌ Failed to start server:', err.message);
+  });

@@ -319,7 +319,7 @@ export default function useLayoutLogic() {
         };
       });
 
-      const apiBase = window.location.hostname === 'localhost'? 'http://localhost:7000': 'https://serpapi-app2mobile-1.onrender.com'; 
+      const apiBase = window.location.hostname === 'localhost'? 'http://localhost:5000': 'https://serpapi-app2mobile-1.onrender.com'; 
 
       const response = await fetch(`${apiBase}/api/results/bulk`, {
         method: 'POST',
