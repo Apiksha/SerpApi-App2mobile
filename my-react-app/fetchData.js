@@ -14,7 +14,7 @@ const sequelize = new Sequelize(
     dialect: 'mysql',
     dialectOptions: {
       ssl: {
-        ca: fs.readFileSync(process.env.DB_SSL_CA).toString()
+        ca: fs.readFileSync('./DigiCertGlobalRootCA.crt.pem').toString()
       }
     },
     logging: false
@@ -77,7 +77,7 @@ const exportToCSV = async () => {
       )
     ];
 
-    fs.writeFileSync('results.csv', csvRows.join('\n'), 'utf8');
+    fs.writeFileSync('data.csv', csvRows.join('\n'), 'utf8');
     console.log('✅ Data exported to results.csv');
 
     await sequelize.close();
