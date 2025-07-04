@@ -72,7 +72,7 @@ const exportToCSV = async () => {
           if (Array.isArray(value)) value = value.join('; ');
           else if (typeof value === 'object' && value !== null) value = JSON.stringify(value);
           else if (value === null || value === undefined) value = '';
-          return `"${value.toString().replace(/"/g, '""')}"`; // escape double quotes
+          return `"${value.toString().replace(/"/g, '""')}"`;
         }).join(',')
       )
     ];

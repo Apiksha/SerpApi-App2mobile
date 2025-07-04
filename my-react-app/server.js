@@ -5,12 +5,10 @@ import fetch from 'node-fetch';
 import path from 'path';
 import { fileURLToPath } from 'url';
 
-// DB imports
 import resultsRoutes from './sqlDatabase/src/routes/results.js';
 import sequelize from './sqlDatabase/src/db/connection.js';
 import './sqlDatabase/src/models/Result.js';
 
-// Setup
 dotenv.config();
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -20,7 +18,6 @@ const PORT = process.env.PORT || 5000;
 const isProduction = process.env.NODE_ENV === 'production';
 const environment = process.env.NODE_ENV || 'development';
 
-// Middlewares
 app.use(cors({
   origin: '*',
   methods: ['GET', 'POST'],
@@ -28,12 +25,10 @@ app.use(cors({
 }));
 app.use(express.json({ limit: '50mb' }));
 
-// Health check
 app.get('/health', (req, res) => {
   res.json({ status: 'ok' });
 });
 
-// SerpAPI route
 app.get('/search', async (req, res) => {
   try {
     const { q, ll, page = 1 } = req.query;
@@ -77,17 +72,14 @@ app.get('/search', async (req, res) => {
   }
 });
 
-// Mount DB API
 app.use('/api/results', resultsRoutes);
 
-// Serve frontend
 app.use(express.static(path.join(__dirname, 'dist')));
 
 app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, 'dist', 'index.html'));
 });
 
-// Connect DB and start server
 sequelize.authenticate()
   .then(() => {
     console.log('✅ Connected to MySQL database');
