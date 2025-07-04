@@ -319,11 +319,14 @@ export default function useLayoutLogic() {
         };
       });
 
-      const response = await fetch('http://localhost:7000/api/results/bulk', {
+      const apiBase = window.location.hostname === 'localhost'? 'http://localhost:7000': 'https://serpapi-app2mobile-1.onrender.com'; 
+
+      const response = await fetch(`${apiBase}/api/results/bulk`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(mappedResults),
       });
+
 
       if (!response.ok) {
         const errorText = await response.text();
@@ -345,7 +348,6 @@ export default function useLayoutLogic() {
     }
   };
 
-  // export logic
 
   return {
     keyword, setKeyword,
