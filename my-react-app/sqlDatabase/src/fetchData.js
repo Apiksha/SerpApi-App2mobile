@@ -4,7 +4,6 @@ import dotenv from 'dotenv';
 
 dotenv.config();
 
-// Setup Sequelize connection
 const sequelize = new Sequelize(
   process.env.DB_NAME,
   process.env.DB_USER,
@@ -22,7 +21,6 @@ const sequelize = new Sequelize(
   }
 );
 
-// Define a flexible model for reading (you can customize fields if needed)
 const Result = sequelize.define('Result', {
   title: DataTypes.STRING,
   latitude_and_longitude: DataTypes.STRING,
@@ -65,10 +63,9 @@ const exportToCSV = async () => {
       return;
     }
 
-    // Extract headers
     const headers = Object.keys(results[0]);
     const csvRows = [
-      headers.join(','), // header row
+      headers.join(','),
       ...results.map(row =>
         headers.map(field => {
           let value = row[field];

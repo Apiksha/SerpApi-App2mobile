@@ -17,7 +17,7 @@ const sequelize = new Sequelize(
         ca: fs.readFileSync(process.env.DB_SSL_CA).toString(),
       },
     },
-    logging: false, // optional
+    logging: false,
   }
 );
 

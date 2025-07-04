@@ -1,6 +1,5 @@
 import Result from '../models/Result.js';
 
-// Create one result
 export const createResult = async (req, res) => {
   try {
     const result = await Result.create(req.body);
@@ -14,7 +13,6 @@ export const createManyResults = async (req, res) => {
   try {
     const incoming = req.body;
 
-    // Ensure each item has required fields
     const validData = incoming.filter(item =>
       item.title && item.latitude_and_longitude
     );
@@ -24,7 +22,7 @@ export const createManyResults = async (req, res) => {
     }
 
     const inserted = await Result.bulkCreate(validData, {
-      ignoreDuplicates: true, // key point
+      ignoreDuplicates: true, 
     });
 
     res.status(201).json({
@@ -36,7 +34,6 @@ export const createManyResults = async (req, res) => {
   }
 };
 
-// Get all results
 export const getAllResults = async (req, res) => {
   try {
     const results = await Result.findAll();
@@ -46,7 +43,6 @@ export const getAllResults = async (req, res) => {
   }
 };
 
-// Get one result by ID
 export const getResultById = async (req, res) => {
   try {
     const result = await Result.findByPk(req.params.id);
@@ -59,7 +55,6 @@ export const getResultById = async (req, res) => {
   }
 };
 
-// Update result by ID
 export const updateResult = async (req, res) => {
   try {
     const [updated] = await Result.update(req.body, {
@@ -77,7 +72,6 @@ export const updateResult = async (req, res) => {
   }
 };
 
-// Delete result by ID
 export const deleteResult = async (req, res) => {
   try {
     const deleted = await Result.destroy({

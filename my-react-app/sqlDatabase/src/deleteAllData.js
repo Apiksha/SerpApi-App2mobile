@@ -4,7 +4,6 @@ import fs from 'fs';
 
 dotenv.config();
 
-// Initialize Sequelize
 const sequelize = new Sequelize(
   process.env.DB_NAME,
   process.env.DB_USER,
@@ -22,7 +21,6 @@ const sequelize = new Sequelize(
   }
 );
 
-// Define model
 const Result = sequelize.define('Result', {
   title: DataTypes.STRING,
   latitude_and_longitude: DataTypes.STRING
