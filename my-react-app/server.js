@@ -38,7 +38,7 @@ app.get('/search', async (req, res) => {
 
     const start = (parseInt(page, 10) - 1) * 20;
 
-    const apiKey = process.env.SERPAPI_KEY || 'c986bb6bcac5fca8c17ccac2ce7c7c99990668c66dc19b4365f4188bbcda0642';
+    const apiKey = process.env.SERPAPI_KEY || '4442a4b9024ea830088270bc5f9632af4cd524e32c0876d7206aa472a67ff628';
     const apiUrl = `https://serpapi.com/search?engine=google_maps&q=${encodeURIComponent(q)}&ll=${encodeURIComponent(ll)}&start=${start}&api_key=${apiKey}`;
 
     console.log('Environment:', environment);
